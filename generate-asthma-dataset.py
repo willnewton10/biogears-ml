@@ -7,9 +7,12 @@
 #
 # unsure how it will be installed on mac/linux but on windows:
 #
-# find the bin folder in the biogears installation, update string below
+# find the bin folder in the biogears installation, update string in globals.py
+# to point to it
 
-DIR_BIOGEARS_BIN = r"C:\Users\Will\BioGears\bin"
+import globals
+
+DIR_BIOGEARS_BIN = globals.DIR_BIOGEARS_BIN
 
 
 
@@ -38,45 +41,57 @@ os.makedirs(DIR_CUSTOM_SCENARIOS, exist_ok=True)
 def make_asthma_scenario_xml(name, samples_per_second, pre_attack_seconds,
                              attack_severity_percent, attack_duration_seconds,
                              post_attack_seconds):
+    if attack_severity_percent == 0:
+        # no asthma present! Just get data for normal conditions
+        actions = f"""<Actions>
+            <Action xsi:type="AdvanceTimeData">
+            <Time value="{pre_attack_seconds + attack_duration_seconds + post_attack_seconds}" unit="s"/>
+            </Action>
+            </Actions>"""
+    else:
+        actions =     f"""<Actions>
+            <Action xsi:type="AdvanceTimeData">
+            <Time value="{pre_attack_seconds}" unit="s"/>
+            </Action>
+            <Action xsi:type="AsthmaAttackData">
+            <Severity value="{attack_severity_percent}"/>
+            </Action>
+            <Action xsi:type="AdvanceTimeData">
+            <Time value="{attack_duration_seconds}" unit="s"/>
+            </Action>
+            <Action xsi:type="AsthmaAttackData">
+            <Severity value="0.0"/>
+            </Action>
+            <Action xsi:type="AdvanceTimeData">
+            <Time value="{post_attack_seconds}" unit="s"/>
+            </Action>
+            </Actions>"""
+
     return f"""<?xml version="1.0" encoding="UTF-8"?>
-<Scenario xmlns="uri:/mil/tatrc/physiology/datamodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" contentVersion="BioGears_6.3.0-beta" xsi:schemaLocation="">
-    <Name>{name}</Name>
-    <Description>Patient is afflicted with an asthma attack</Description>
-    <InitialParameters><PatientFile>StandardMale.xml</PatientFile></InitialParameters>
-    
-    <DataRequests xmlns="uri:/mil/tatrc/physiology/datamodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SamplesPerSecond="{samples_per_second}">
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="MeanArterialPressure" Unit="mmHg" Precision="1"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="HeartRate" Unit="" Precision="1"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="SystolicArterialPressure" Unit="mmHg" Precision="0"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="DiastolicArterialPressure" Unit="mmHg" Precision="1"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="CardiacOutput" Unit="L/min" Precision="2"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="CentralVenousPressure" Unit="mmHg" Precision="2"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="TidalVolume" Unit="mL" Precision="3"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="TotalLungVolume" Unit="L" Precision="2"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="RespirationRate" Unit="1/min" Precision="2"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="OxygenSaturation" Unit="unitless" Precision="3"/>
-        <DataRequest xsi:type="PhysiologyDataRequestData" Name="CoreTemperature" Unit="degC" Precision="1"/>
-    </DataRequests>
-	
-    <Actions>
-  <Action xsi:type="AdvanceTimeData">
-        <Time value="{pre_attack_seconds}" unit="s"/>       
-    </Action>
-    <Action xsi:type="AsthmaAttackData">
-        <Severity value="{attack_severity_percent}"/>       
-    </Action>
-    <Action xsi:type="AdvanceTimeData">
-		<Time value="{attack_duration_seconds}" unit="s"/>
-	</Action>  
-	<Action xsi:type="AsthmaAttackData">
-        <Severity value="0.0"/>       
-    </Action>
-	<Action xsi:type="AdvanceTimeData">
-		<Time value="{post_attack_seconds}" unit="s"/>
-	</Action>
-  </Actions>
-</Scenario>
-"""
+    <Scenario xmlns="uri:/mil/tatrc/physiology/datamodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" contentVersion="BioGears_6.3.0-beta" xsi:schemaLocation="">
+        <Name>{name}</Name>
+        <Description>Patient is afflicted with an asthma attack</Description>
+        <InitialParameters><PatientFile>StandardMale.xml</PatientFile></InitialParameters>
+        
+        <DataRequests xmlns="uri:/mil/tatrc/physiology/datamodel" 
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+            SamplesPerSecond="{samples_per_second}">
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="MeanArterialPressure" Unit="mmHg" Precision="1"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="HeartRate" Unit="" Precision="1"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="SystolicArterialPressure" Unit="mmHg" Precision="0"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="DiastolicArterialPressure" Unit="mmHg" Precision="1"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="CardiacOutput" Unit="L/min" Precision="2"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="CentralVenousPressure" Unit="mmHg" Precision="2"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="TidalVolume" Unit="mL" Precision="3"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="TotalLungVolume" Unit="L" Precision="2"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="RespirationRate" Unit="1/min" Precision="2"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="OxygenSaturation" Unit="unitless" Precision="3"/>
+            <DataRequest xsi:type="PhysiologyDataRequestData" Name="CoreTemperature" Unit="degC" Precision="1"/>
+        </DataRequests>
+        
+        {actions}
+    </Scenario>
+    """
 
 completed_processes = 0
 
