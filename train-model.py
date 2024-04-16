@@ -1,3 +1,4 @@
+import torch
 
 #
 # X, y = [], []
@@ -20,13 +21,16 @@
 #     (from torch.utils.data import DataLoader...)
 # but I dont think this is necessary
 #      its fine to do batch size of 1 at this stage
+from torch.utils.data import DataLoader
+
+
+train_dataloader = DataLoader(train_data, batch_size=10, shuffle=True)
 
 
 # This code is from my lab07. adapt it to our scenario
 # we do not have embeddings or vocabulary...
 # we just have num_columns and num_classes
 #   which we can get from the loaded data
-# sp
 
 import torch.nn as nn
 
@@ -90,9 +94,9 @@ def train_model(model,                # an instance of MLPModel
                 train_data,           # training data
                 val_data,             # validation data
                 learning_rate=0.001,
-                batch_size=100,
-                num_epochs=10,
-                plot_every=50,        # how often (in # iterations) to track metrics
+                batch_size=10,
+                num_epochs=5,
+                plot_every=10,        # how often (in # iterations) to track metrics
                 plot=True,            # whether to plot the training curve
                 clip_grad_norm=False):
     print("training with clip_grad_norm=", clip_grad_norm)
@@ -157,4 +161,4 @@ model = MyRNN(vocab_size=len(vocab),
               hidden_size=64,
               num_classes=2)
 
-train_model(model, train_data_indices[0:10], train_data_indices[0:10], batch_size=1, num_epochs=10, plot_every=10, plot=True, clip_grad_norm=True)
+train_model(model, train_data, val_data, batch_size=1, num_epochs=10, plot_every=10, plot=True, clip_grad_norm=True)
