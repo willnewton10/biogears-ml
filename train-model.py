@@ -1,4 +1,6 @@
 import torch
+from torch.utils.data import DataLoader
+from load_data import load_data, split_dataset
 
 #
 # X, y = [], []
@@ -12,6 +14,7 @@ import torch
 #         the csv library should parse them into floats
 #             if not, do it manually
 #
+dataset = load_data("asthma-dataset-1")
 # shuffle the data
 # split into training/validation randomly
 #
@@ -21,7 +24,7 @@ import torch
 #     (from torch.utils.data import DataLoader...)
 # but I dont think this is necessary
 #      its fine to do batch size of 1 at this stage
-from torch.utils.data import DataLoader
+train_data, val_data, test_data = split_dataset(dataset)
 
 
 train_dataloader = DataLoader(train_data, batch_size=10, shuffle=True)
