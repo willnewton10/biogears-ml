@@ -19,7 +19,7 @@ def load_data(data_folder) -> list[tuple[torch.Tensor, torch.Tensor]]:
         for csv_file in os.listdir(f"{data_folder}/{category}"):
             dataset.append((
                 pd.read_csv(f"{data_folder}/{category}/{csv_file}").values,
-                category == categories
+                (category == categories).astype(float)
             ))
     return dataset
 
