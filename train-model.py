@@ -1,41 +1,20 @@
 import torch
 from torch.utils.data import DataLoader
 from load_data import load_data, split_dataset
+import torch.nn as nn
+import torch.optim as optim
+import matplotlib.pyplot as plt
+import numpy as np
+import global_constants
 
-#
-# X, y = [], []
-# load data set
-#     for each folder in "asthma-dataset-1" folder
-#     (or from augmented folder if it has data )
-#         X = load csv
-#         each folder is one class
-#         y = folder name
-#         convert y to one hot encoding
-#         the csv library should parse them into floats
-#             if not, do it manually
-#
+
 dataset = load_data("asthma-dataset-1")
-# shuffle the data
-# split into training/validation randomly
-#
-# (unsure if we have enough CSVs for a test set as well)
-#
-# if we want to batch our data, we can do that with DataLoader
-#     (from torch.utils.data import DataLoader...)
-# but I dont think this is necessary
-#      its fine to do batch size of 1 at this stage
+
 train_data, val_data, test_data = split_dataset(dataset)
 
 
 train_dataloader = DataLoader(train_data, batch_size=10, shuffle=True)
 
-
-# This code is from my lab07. adapt it to our scenario
-# we do not have embeddings or vocabulary...
-# we just have num_columns and num_classes
-#   which we can get from the loaded data
-
-import torch.nn as nn
 
 class MyRNN(nn.Module):
     def __init__(self, num_cols, hidden_size, num_classes):
@@ -53,8 +32,7 @@ class MyRNN(nn.Module):
 
 
 
-# copied from lab07 - we should cite where we use existing code
-# unsure if this has to be modified to ours
+# copied from lab07
 def accuracy(model, dataset, max=1000):
     """
     Estimate the accuracy of `model` over the `dataset`.
@@ -86,15 +64,12 @@ def accuracy(model, dataset, max=1000):
 
     return correct / total
 
-import torch.optim as optim
-import matplotlib.pyplot as plt
 
-
-# again copied from lab07
 def train_model(model,                # an instance of MLPModel
                 train_data,           # training data
                 val_data,             # validation data
                 learning_rate=0.01,
+                weight_decay=-1,
                 batch_size=10,
                 num_epochs=5,
                 plot_every=10,        # how often (in # iterations) to track metrics
@@ -105,7 +80,10 @@ def train_model(model,                # an instance of MLPModel
                                                batch_size=batch_size,
                                                shuffle=True) # reshuffle minibatches every epoch
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)#, weight_decay=1e-6)
+    if weight_decay > 0:
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-6)
+    else:
+        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # these lists will be used to track the training progress
     # and to plot the training curve
@@ -115,8 +93,6 @@ def train_model(model,                # an instance of MLPModel
     try:
         for e in range(num_epochs):
             for i, (texts, labels) in enumerate(train_loader):
-                # texts = texts.to(device)
-                # labels = labels.to(device)
                 z = model(texts)
 
                 loss = criterion(z, labels)
@@ -135,6 +111,7 @@ def train_model(model,                # an instance of MLPModel
                     train_loss.append(float(loss))
                     train_acc.append(ta)
                     val_acc.append(va)
+
                     print(f"{iter_count} Loss: {loss:.3f} Train Acc: {ta:.3f} Val Acc: {va:.3f}")
     finally:
         # This try/finally block is to display the training curve
@@ -154,10 +131,48 @@ def train_model(model,                # an instance of MLPModel
             plt.ylabel("Loss")
             plt.legend(["Train", "Validation"])
 
+            plt.show()
+
+
 model = MyRNN(
     num_cols=13,
-    hidden_size=5,
+    hidden_size=15,
     num_classes=5
 )
 
-train_model(model, train_data, val_data, batch_size=10, num_epochs=200, plot_every=10, plot=True, clip_grad_norm=True)
+train_model(model, train_data, val_data,
+            learning_rate=0.005, batch_size=10,
+            num_epochs=100, plot_every=100, plot=True, clip_grad_norm=True)
+
+def plot_incorrect_classifications(model, dataset):
+    dataloader = DataLoader(dataset, batch_size=1)
+    incorrect_classifications = np.zeros(len(global_constants.ASTHMA_CASES))
+    model.eval()
+
+    category_names = sorted(global_constants.ASTHMA_CASES, key=global_constants.ASTHMA_CASES.get)
+
+
+    for texts, labels in dataloader:
+        z = model(texts)
+        predictions = torch.argmax(z, axis=1)
+        labels = torch.argmax(labels, axis=1)
+        for i in range(predictions.size(0)):
+            if predictions[i] != labels[i]:
+                incorrect_classifications[labels[i].item()] += 1
+
+    plt.figure()
+    categories = np.arange(len(category_names))
+    plt.bar(categories, incorrect_classifications, color='red')
+    plt.xlabel("Categories")
+    plt.ylabel("Number of Incorrect Classifications")
+    plt.title("Incorrect Classifications by Category")
+    plt.xticks(categories, category_names)
+    plt.show()
+
+
+plot_incorrect_classifications(model, test_data)
+
+
+
+
+

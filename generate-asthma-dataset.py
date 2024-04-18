@@ -7,12 +7,12 @@
 #
 # unsure how it will be installed on mac/linux but on windows:
 #
-# find the bin folder in the biogears installation, update string in globals.py
+# find the bin folder in the biogears installation, update string in global_constants.py
 # to point to it
 
-import globals
+import global_constants
 
-DIR_BIOGEARS_BIN = globals.DIR_BIOGEARS_BIN
+DIR_BIOGEARS_BIN = global_constants.DIR_BIOGEARS_BIN
 
 
 
@@ -95,18 +95,10 @@ def make_asthma_scenario_xml(name, samples_per_second, pre_attack_seconds,
 
 completed_processes = 0
 
-asthma_cases = {
-    "none": 0.,
-    "mild": .1,
-    "moderate": .3,
-    "severe": .7,
-    "life-threatening":.9
-}
-
 
 
 # create the XML scenario files for our custom asthma attacks
-for case_name, case_severity in asthma_cases.items():
+for case_name, case_severity in global_constants.ASTHMA_CASES.items():
     xml = make_asthma_scenario_xml(case_name, 20, 10, case_severity, 50, 10)
     xml_file_location = os.path.join(DIR_CUSTOM_SCENARIOS, case_name + ".xml")
     print(f"creating xml for case: {case_name} at {xml_file_location}")
@@ -118,7 +110,7 @@ patient_files = [f for f in os.listdir(DIR_PATIENTS) if f.endswith(".xml")]
 
 # run our custom scenarios on each patient
 # put data for each scenario into its own folder
-for scenario_name, _ in asthma_cases.items():
+for scenario_name, _ in global_constants.ASTHMA_CASES.items():
     scenario_file =  os.path.join(DIR_CUSTOM_SCENARIOS, scenario_name + ".xml")
 
     # ensure directories exist

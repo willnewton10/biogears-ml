@@ -11,9 +11,10 @@
 #           mean 0
 #           variance should be small
 #               maybe, for a given column, get the average distance between consecutive rows
+#               OR some fraction of the difference between the min and max val in the col
 #       - perhaps offset the event by removing a uniform random number of
 #           seconds of rows from the beginning of the dataset
-#       - perhaps remove rows
-#       - perhaps make multiple copies of same csv with different augmentations
+#       - perhaps remove rows altogether!
+#       - perhaps make multiple copies of same csv with different augmentations. let's say 5
 
 
