@@ -1,8 +1,8 @@
 import os
 import shutil
-import globals
+import global_constants
 
-DIR_BIOGEARS_BIN = globals.DIR_BIOGEARS_BIN
+DIR_BIOGEARS_BIN = global_constants.DIR_BIOGEARS_BIN
 source = os.path.join(DIR_BIOGEARS_BIN, "csv-data")
 target = "asthma-dataset-1"
 

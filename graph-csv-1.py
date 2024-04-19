@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import globals
+import global_constants
 
 def load_and_graph_csv(path_to_csv):
     data = pd.read_csv(path_to_csv)
@@ -22,6 +22,6 @@ def load_and_graph_csv(path_to_csv):
     plt.tight_layout()
     plt.show()
 
-csv_location = f'{globals.DIR_BIOGEARS_BIN}\csv-data\\none-old\\DefaultTemplateMaleResults.csv'
+csv_location = f'{global_constants.DIR_BIOGEARS_BIN}\csv-data\\none-old\\DefaultTemplateMaleResults.csv'
 
 load_and_graph_csv(csv_location)
