@@ -9,8 +9,10 @@ import global_constants
 
 
 dataset = load_data("asthma-dataset-1")
+augmented_dataset = load_data("asthma-dataset-1-augmented-1")
 
-train_data, val_data, test_data = split_dataset(dataset)
+train_data, val_data, _ = split_dataset(augmented_dataset)
+_, _, test_data = split_dataset(dataset)
 
 
 train_dataloader = DataLoader(train_data, batch_size=10, shuffle=True)
@@ -189,9 +191,9 @@ def count_patients(dataset):
     return severity_counts
 
 
-train_counts = count_severity_patients(train_data)
-val_counts = count_severity_patients(val_data)
-test_counts = count_severity_patients(test_data)
+train_counts = count_patients(train_data)
+val_counts = count_patients(val_data)
+test_counts = count_patients(test_data)
 
 print("Training Set:")
 print("--------------")
