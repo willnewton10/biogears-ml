@@ -74,10 +74,9 @@ def accuracy(model, dataset, max=1000):
 
     correct, total = 0, 0
     dataloader = DataLoader(dataset,
-                            batch_size=1,  # use batch size 1 to prevent padding
+                            batch_size=1
                             )
     for i, (x, t) in enumerate(dataloader):
-        # x, t = x.to(device), t.to(device)  # Move data to the correct device
         z = model(x)
         y = torch.argmax(z, axis=1)
         correct += int(torch.sum(torch.argmax(t) == y))
@@ -88,30 +87,28 @@ def accuracy(model, dataset, max=1000):
     return correct / total
 
 
-def train_model(model,                # an instance of MLPModel
-                train_data,           # training data
-                val_data,             # validation data
+def train_model(model,
+                train_data,
+                val_data,
                 learning_rate=0.01,
                 weight_decay=-1,
                 batch_size=10,
                 num_epochs=5,
-                plot_every=10,        # how often (in # iterations) to track metrics
-                plot=True,            # whether to plot the training curve
+                plot_every=10,
+                plot=True,
                 clip_grad_norm=False):
     print("training with clip_grad_norm=", clip_grad_norm)
     train_loader = torch.utils.data.DataLoader(train_data,
                                                batch_size=batch_size,
-                                               shuffle=True) # reshuffle minibatches every epoch
+                                               shuffle=True)
     criterion = nn.CrossEntropyLoss()
     if weight_decay > 0:
         optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-6)
     else:
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # these lists will be used to track the training progress
-    # and to plot the training curve
     iters, train_loss, train_acc, val_acc = [], [], [], []
-    iter_count = 0 # count the number of iterations that has passed
+    iter_count = 0
 
     try:
         for e in range(num_epochs):
@@ -120,11 +117,11 @@ def train_model(model,                # an instance of MLPModel
 
                 loss = criterion(z, labels)
 
-                loss.backward() # propagate the gradients
+                loss.backward()
                 if clip_grad_norm:
                     nn.utils.clip_grad_norm_(model.parameters(), max_norm=1)
-                optimizer.step() # update the parameters
-                optimizer.zero_grad() # clean up accumualted gradients
+                optimizer.step()
+                optimizer.zero_grad()
 
                 iter_count += 1
                 if iter_count % plot_every == 0:
@@ -137,8 +134,6 @@ def train_model(model,                # an instance of MLPModel
 
                     print(f"{iter_count} Loss: {loss:.3f} Train Acc: {ta:.3f} Val Acc: {va:.3f}")
     finally:
-        # This try/finally block is to display the training curve
-        # even if training is interrupted
         if plot:
             plt.figure()
             plt.plot(iters[:len(train_loss)], train_loss)
