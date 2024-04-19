@@ -173,6 +173,45 @@ def plot_incorrect_classifications(model, dataset):
 plot_incorrect_classifications(model, test_data)
 
 
+# Count of patient severity levels in each dataset
+def count_patients(dataset):
+    dataloader = DataLoader(dataset, batch_size=1)
+    severity_labels = ['none', 'mild', 'moderate', 'severe', 'life-threatening']
+    severity_counts = {}
+    
+    for _, severity_tensor in dataloader:
+        severity = severity_labels[torch.argmax(severity_tensor).item()]
+        if severity in severity_counts:
+            severity_counts[severity] += 1
+        else:
+            severity_counts[severity] = 1
+            
+    return severity_counts
+
+
+train_counts = count_severity_patients(train_data)
+val_counts = count_severity_patients(val_data)
+test_counts = count_severity_patients(test_data)
+
+print("Training Set:")
+print("--------------")
+for severity, count in train_counts.items():
+    print(f"Severity: {severity}, Patients: {count}")
+print("--------------")
+
+print("Validation Set:")
+print("--------------")
+for severity, count in val_counts.items():
+    print(f"Severity: {severity}, Patients: {count}")
+print("--------------")
+
+print("Test Set:")
+print("--------------")
+for severity, count in test_counts.items():
+    print(f"Severity: {severity}, Patients: {count}")
+print("--------------")
+
+
 
 
 
