@@ -18,6 +18,28 @@ _, _, test_data = split_dataset(dataset)
 train_dataloader = DataLoader(train_data, batch_size=10, shuffle=True)
 
 
+
+
+#######################################################################
+#######################################################################
+#######################################################################
+#                                                                     #
+#                                                                     #
+#                              CITATION                               #
+#                                                                     #
+#  Some of the code below is based and partially copied from Lab07    #
+#  from the course labs: https://amfarahmand.github.io/NN-Winter2024/ #
+#                                                                     #
+#  accuracy, train_model, and MyRNN are based on William Newton's     #
+#  version of this assignment, but edited to fit this new problem.    #
+#                                                                     #
+#                                                                     #
+#                                                                     #
+#######################################################################
+#######################################################################
+#######################################################################
+
+
 class MyRNN(nn.Module):
     def __init__(self, num_cols, hidden_size, num_classes):
         super(MyRNN, self).__init__()
@@ -34,7 +56,6 @@ class MyRNN(nn.Module):
 
 
 
-# copied from lab07
 def accuracy(model, dataset, max=1000):
     """
     Estimate the accuracy of `model` over the `dataset`.
@@ -180,14 +201,14 @@ def count_patients(dataset):
     dataloader = DataLoader(dataset, batch_size=1)
     severity_labels = ['none', 'mild', 'moderate', 'severe', 'life-threatening']
     severity_counts = {}
-    
+
     for _, severity_tensor in dataloader:
         severity = severity_labels[torch.argmax(severity_tensor).item()]
         if severity in severity_counts:
             severity_counts[severity] += 1
         else:
             severity_counts[severity] = 1
-            
+
     return severity_counts
 
 
